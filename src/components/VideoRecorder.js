@@ -174,7 +174,7 @@ const VideoRecorder = () => {
         });
         submitFormData.append('video1', recordedVideos.question1, 'video1.mp4');
         submitFormData.append('video2', recordedVideos.question2, 'video2.mp4');
-        fetch('http://localhost:3000/upload', {
+        fetch('https://videoresponse.onepgr.com:3000/upload', {
           method: 'POST',
           body: submitFormData,
         })

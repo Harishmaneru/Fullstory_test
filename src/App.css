@@ -79,3 +79,47 @@
 
   z-index: 9999;
 }
+
+
+@media (max-width: 576px) {
+  .form-floating > label {
+    font-size: 0.875rem;
+  }
+}
+ .form-floating > label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  right: 0;
+  max-width: calc(100% - 24px);
+} 
+
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+
+  margin-bottom: 0.5rem;
+  word-wrap: break-word; 
+}
+
+textarea, input {
+  width: 100%; 
+   padding: 0.5rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  label {
+    font-size: 14px; 
+   }
+
+  textarea, input {
+    font-size: 14px;
+  }
+}
+

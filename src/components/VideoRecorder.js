@@ -12,6 +12,7 @@ const VideoRecorder = () => {
     question1: null,
     question2: null
   });
+
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -117,18 +118,18 @@ const VideoRecorder = () => {
         setIsRecording(true);
         setElapsedTime(0);
         setCurrentQuestion(questionNumber);
-        
+
         // Create a MediaRecorder with MP4 container and H.264 video codec
         const options = { mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"' };
         const recorder = new MediaRecorder(stream, options);
         const chunks = [];
-        
+
         recorder.ondataavailable = event => {
           if (event.data.size > 0) {
             chunks.push(event.data);
           }
         };
-        
+
         recorder.onstop = () => {
           const blob = new Blob(chunks, { type: 'video/mp4' });
           setRecordedVideos(prev => ({
@@ -140,7 +141,7 @@ const VideoRecorder = () => {
             [`question${questionNumber}`]: true
           }));
         };
-        
+
         recorder.start();
         setMediaRecorder(recorder);
       })
@@ -363,11 +364,26 @@ const VideoRecorder = () => {
                     <label htmlFor="skills">What are your key skills and qualifications?</label>
                     {formErrors.skills && <div className="invalid-feedback">{formErrors.skills}</div>}
                   </div>
-                  <div className="form-floating mb-3">
-                    <textarea className={`form-control ${formErrors.challenge ? 'is-invalid' : ''}`} id="challenge" name="challenge" placeholder="Describe a challenging project you have worked on" style={{ height: '100px' }} value={formData.challenge} onChange={handleInputChange} required></textarea>
-                    <label htmlFor="challenge">Describe a challenging project you have worked on</label>
+                  <form class="form-container">
+                  <div class="form-group">
+                  <div className="form-floating mb-3" >
+                    <textarea
+                      className={`form-control ${formErrors.challenge ? 'is-invalid' : ''}`}
+                      id="challenge"
+                      name="challenge"
+                      placeholder="Describe a challenging project you have worked on"
+                      style={{ height: '100px', wordWrap: 'break-word', whiteSpace: 'normal' }}
+                      value={formData.challenge}
+                      onChange={handleInputChange}
+                      required
+                    />
+                    <label htmlFor="challenge">
+                      Describe a challenging project you have worked on..
+                    </label>
                     {formErrors.challenge && <div className="invalid-feedback">{formErrors.challenge}</div>}
                   </div>
+                  </div>
+                  </form>
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <div className="form-floating mb-3 mb-md-0">

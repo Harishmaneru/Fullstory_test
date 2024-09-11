@@ -123,3 +123,27 @@ textarea, input {
   }
 }
 
+
+
+.form-floating > label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  right: 0;
+  max-width: calc(100% - 24px);
+} 
+
+
+
+.form-box {
+  width: 100%;
+  max-width: 500px;  
+  padding: 20px;
+  border-radius: 8px;
+ 
+}
+
+.form-floating .form-control {
+  height: 45px; 
+  font-size: 14px;  
+}

@@ -33,6 +33,7 @@ const VideoRecorder = () => {
     company: '',
     location: '',
     linkedinUrl: '',
+    domainUrl: '',
     hearAbout: '',
     interest: '',
     skills: '',
@@ -44,19 +45,27 @@ const VideoRecorder = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  
   useEffect(() => {
     const fullUrl = window.location.href;
     const splitUrl = fullUrl.split('?');
     if (splitUrl.length > 1) {
-      const jobUrl = splitUrl[1];
-      if (jobUrl) {
-        setFormData(prevData => ({
-          ...prevData,
-          jobReqUrl: decodeURIComponent(jobUrl)
-        }));
-      }
+      const queryParams = new URLSearchParams(splitUrl[1]);
+  
+      const email = queryParams.get('email');
+      const domainUrl = queryParams.get('domainUrl');
+      const jobReqUrl = queryParams.get('jobReqUrl');
+  
+      setFormData(prevData => ({
+        ...prevData,
+        email: email ? decodeURIComponent(email) : '',
+        domainUrl: domainUrl ? decodeURIComponent(domainUrl) : '',
+        jobReqUrl: jobReqUrl ? decodeURIComponent(jobReqUrl) : ''
+      }));
     }
   }, []);
+  
+
 
   useEffect(() => {
     if (isRecording) {
@@ -96,6 +105,7 @@ const VideoRecorder = () => {
     if (!formData.jobTitle.trim()) errors.jobTitle = 'Current Job Title is required';
     if (!formData.company.trim()) errors.company = 'Current Company is required';
     if (!formData.location.trim()) errors.location = 'Location is required';
+    if (!formData.domainUrl.trim()) errors.domainUrl = 'Domain URL is required';
     if (!formData.linkedinUrl.trim()) errors.linkedinUrl = 'LinkedIn Profile URL is required';
     if (!formData.hearAbout.trim()) errors.hearAbout = 'This field is required';
     if (!formData.interest.trim()) errors.interest = 'This field is required';
@@ -175,7 +185,7 @@ const VideoRecorder = () => {
         });
         submitFormData.append('video1', recordedVideos.question1, 'video1.mp4');
         submitFormData.append('video2', recordedVideos.question2, 'video2.mp4');
-        fetch('https://videoresponse.onepgr.com:3000/upload', {
+        fetch('http://localhost:3000/upload', {
           method: 'POST',
           body: submitFormData,
         })
@@ -209,6 +219,7 @@ const VideoRecorder = () => {
               company: '',
               location: '',
               linkedinUrl: '',
+              domainUrl: '',
               hearAbout: '',
               interest: '',
               skills: '',
@@ -246,7 +257,7 @@ const VideoRecorder = () => {
 
   const sendConfirmationEmail = (email) => {
     console.log(`Sending confirmation email to ${email}`);
-    // Implement email sending logic here
+ 
   };
   return (
     <>
@@ -345,6 +356,20 @@ const VideoRecorder = () => {
                     </div>
                   </div>
                   <div className="form-floating mb-3">
+                    <input
+                      className={`form-control ${formErrors.domainUrl ? 'is-invalid' : ''}`}
+                      id="domainUrl"
+                      name="domainUrl"
+                      placeholder="Enter your Domain URL"
+                      type="url"
+                      value={formData.domainUrl}
+                      onChange={handleInputChange}
+                      required
+                    />
+                    <label htmlFor="domainUrl">Domain URL (e.g., https://example.com)</label>
+                    {formErrors.domainUrl && <div className="invalid-feedback">{formErrors.domainUrl}</div>}
+                  </div>
+                  <div className="form-floating mb-3">
                     <input className={`form-control ${formErrors.linkedinUrl ? 'is-invalid' : ''}`} id="linkedinUrl" name="linkedinUrl" type="url" placeholder="Enter your LinkedIn profile URL" value={formData.linkedinUrl} onChange={handleInputChange} required />
                     <label htmlFor="linkedinUrl">LinkedIn Profile URL (e.g., https://www.linkedin.com/in/your-profile)</label>
                     {formErrors.linkedinUrl && <div className="invalid-feedback">{formErrors.linkedinUrl}</div>}
@@ -365,24 +390,24 @@ const VideoRecorder = () => {
                     {formErrors.skills && <div className="invalid-feedback">{formErrors.skills}</div>}
                   </div>
                   <form class="form-container">
-                  <div class="form-group">
-                  <div className="form-floating mb-3" >
-                    <textarea
-                      className={`form-control ${formErrors.challenge ? 'is-invalid' : ''}`}
-                      id="challenge"
-                      name="challenge"
-                      placeholder="Describe a challenging project you have worked on"
-                      style={{ height: '100px', wordWrap: 'break-word', whiteSpace: 'normal' }}
-                      value={formData.challenge}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <label htmlFor="challenge">
-                      Describe a challenging project you have worked on..
-                    </label>
-                    {formErrors.challenge && <div className="invalid-feedback">{formErrors.challenge}</div>}
-                  </div>
-                  </div>
+                    <div class="form-group">
+                      <div className="form-floating mb-3" >
+                        <textarea
+                          className={`form-control ${formErrors.challenge ? 'is-invalid' : ''}`}
+                          id="challenge"
+                          name="challenge"
+                          placeholder="Describe a challenging project you have worked on"
+                          style={{ height: '100px', wordWrap: 'break-word', whiteSpace: 'normal' }}
+                          value={formData.challenge}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <label htmlFor="challenge">
+                          Describe a challenging project you have worked on..
+                        </label>
+                        {formErrors.challenge && <div className="invalid-feedback">{formErrors.challenge}</div>}
+                      </div>
+                    </div>
                   </form>
                   <div className="row mb-3">
                     <div className="col-md-6">

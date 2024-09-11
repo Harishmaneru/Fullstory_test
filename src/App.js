@@ -2,6 +2,7 @@ import React from 'react';
 
 import { BrowserRouter, Routes, Route , Navigate} from 'react-router-dom';
 import VideoRecorder from './components/VideoRecorder';
+// import VqaForm from './components/VqaForm';
 
 const App = () => {
   
@@ -10,6 +11,7 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route exact path="/application" element={<VideoRecorder />} />
+        {/* <Route exact path="/VqaForm" element={<VqaForm />} /> */}
         <Route path="*" element={<Navigate to="/application" />} />
         <Route path="/" element={<Navigate to="/application" />} />
       </Routes>

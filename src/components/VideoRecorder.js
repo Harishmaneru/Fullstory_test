@@ -12,7 +12,7 @@ const VideoRecorder = () => {
     question1: null,
     question2: null
   });
-
+  const [resumeFile, setResumeFile] = useState(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -24,6 +24,7 @@ const VideoRecorder = () => {
   const videoRef1 = useRef(null);
   const videoRef2 = useRef(null);
   const timerIntervalRef = useRef(null);
+  const resumeFileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -43,19 +44,22 @@ const VideoRecorder = () => {
     jobReqUrl: '',
     sendConfirmationEmail: true,
   });
-  const [formErrors, setFormErrors] = useState({});
 
-  
+  const [formErrors, setFormErrors] = useState({});
+  const handleFileChange = (e) => {
+    setResumeFile(e.target.files[0]);
+  };
+
   useEffect(() => {
     const fullUrl = window.location.href;
     const splitUrl = fullUrl.split('?');
     if (splitUrl.length > 1) {
       const queryParams = new URLSearchParams(splitUrl[1]);
-  
+
       const email = queryParams.get('email');
       const domainUrl = queryParams.get('domainUrl');
       const jobReqUrl = queryParams.get('jobReqUrl');
-  
+
       setFormData(prevData => ({
         ...prevData,
         email: email ? decodeURIComponent(email) : '',
@@ -64,7 +68,7 @@ const VideoRecorder = () => {
       }));
     }
   }, []);
-  
+
 
 
   useEffect(() => {
@@ -105,7 +109,7 @@ const VideoRecorder = () => {
     if (!formData.jobTitle.trim()) errors.jobTitle = 'Current Job Title is required';
     if (!formData.company.trim()) errors.company = 'Current Company is required';
     if (!formData.location.trim()) errors.location = 'Location is required';
-    if (!formData.domainUrl.trim()) errors.domainUrl = 'Domain URL is required';
+    // if (!formData.domainUrl.trim()) errors.domainUrl = 'Domain URL is required';
     if (!formData.linkedinUrl.trim()) errors.linkedinUrl = 'LinkedIn Profile URL is required';
     if (!formData.hearAbout.trim()) errors.hearAbout = 'This field is required';
     if (!formData.interest.trim()) errors.interest = 'This field is required';
@@ -113,6 +117,7 @@ const VideoRecorder = () => {
     if (!formData.challenge.trim()) errors.challenge = 'This field is required';
     if (!formData.salary.trim()) errors.salary = 'Salary expectations are required';
     if (!formData.relocate.trim()) errors.relocate = 'Please indicate if you are willing to relocate';
+    if (!resumeFile) errors.resume = 'Please upload your resume';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -185,6 +190,9 @@ const VideoRecorder = () => {
         });
         submitFormData.append('video1', recordedVideos.question1, 'video1.mp4');
         submitFormData.append('video2', recordedVideos.question2, 'video2.mp4');
+        if (resumeFile) {
+          submitFormData.append('resume', resumeFile, resumeFile.name);
+        }
         fetch('https://videoresponse.onepgr.com:3000/upload', {
           method: 'POST',
           body: submitFormData,
@@ -237,11 +245,14 @@ const VideoRecorder = () => {
               question1: false,
               question2: false
             });
-            setFormErrors({});
+            setResumeFile(null);  
+            if (resumeFileInputRef.current) {
+                resumeFileInputRef.current.value = ''; 
+            }
             if (videoRef1.current) videoRef1.current.src = '';
             if (videoRef2.current) videoRef2.current.src = '';
             window.scrollTo(0, 0);
-          })
+        })
           .catch(error => {
             console.error('Error submitting application:', error);
             toast.error('Error submitting application: ' + error.message);
@@ -251,13 +262,20 @@ const VideoRecorder = () => {
         toast.error('Please record both videos before submitting.');
       }
     } else {
-      toast.error('Please fill all required fields before submitting.');
+      toast.error('Please fill all required fields (*) before submitting.');
     }
   };
 
+  // const RequiredLabel = ({ htmlFor, children }) => (
+  //   <label htmlFor={htmlFor}>
+  //     {children}
+  //     <span className="text-danger ms-1">*</span>
+  //   </label>
+  // );
+
   const sendConfirmationEmail = (email) => {
     console.log(`Sending confirmation email to ${email}`);
- 
+
   };
   return (
     <>
@@ -283,6 +301,7 @@ const VideoRecorder = () => {
                         <h3 className="mb-0">Job Application</h3>
                         <p className="mb-0">
                           Please complete the form below to apply for a position with us.
+                          
                         </p>
                       </div>
                     </div>
@@ -304,6 +323,7 @@ const VideoRecorder = () => {
                     </div>
                     <p className="text-muted mb-2" style={{ marginLeft: '10px' }}>
                       Please enter the URL of the job requisition you're applying for. Your responses below will be associated with this job posting.
+                      
                     </p>
 
                   </div>
@@ -311,14 +331,14 @@ const VideoRecorder = () => {
                     <div className="col-md-6">
                       <div className="form-floating mb-3 mb-md-0">
                         <input className={`form-control ${formErrors.fullName ? 'is-invalid' : ''}`} id="fullName" name="fullName" type="text" placeholder="Enter your full name" value={formData.fullName} onChange={handleInputChange} required />
-                        <label htmlFor="fullName">Full name</label>
+                        <label htmlFor="fullName">Full name<span className="text-danger ms-0">*</span></label>
                         {formErrors.fullName && <div className="invalid-feedback">{formErrors.fullName}</div>}
                       </div>
                     </div>
                     <div className="col-md-6">
                       <div className="form-floating">
                         <input className={`form-control ${formErrors.email ? 'is-invalid' : ''}`} id="email" name="email" type="email" placeholder="name@example.com" value={formData.email} onChange={handleInputChange} required />
-                        <label htmlFor="email">Email address</label>
+                        <label htmlFor="email">Email address<span className="text-danger ms-0">*</span></label>
                         {formErrors.email && <div className="invalid-feedback">{formErrors.email}</div>}
                       </div>
                     </div>
@@ -327,14 +347,14 @@ const VideoRecorder = () => {
                     <div className="col-md-6">
                       <div className="form-floating mb-3 mb-md-0">
                         <input className={`form-control ${formErrors.phone ? 'is-invalid' : ''}`} id="phone" name="phone" type="tel" placeholder="Enter your phone number" value={formData.phone} onChange={handleInputChange} required />
-                        <label htmlFor="phone">Phone number</label>
+                        <label htmlFor="phone">Phone number<span className="text-danger ms-0">*</span></label>
                         {formErrors.phone && <div className="invalid-feedback">{formErrors.phone}</div>}
                       </div>
                     </div>
                     <div className="col-md-6">
                       <div className="form-floating">
                         <input className={`form-control ${formErrors.jobTitle ? 'is-invalid' : ''}`} id="jobTitle" name="jobTitle" type="text" placeholder="Enter your current job title" value={formData.jobTitle} onChange={handleInputChange} required />
-                        <label htmlFor="jobTitle">Current Job Title</label>
+                        <label htmlFor="jobTitle">Current Job Title<span className="text-danger ms-0">*</span></label>
                         {formErrors.jobTitle && <div className="invalid-feedback">{formErrors.jobTitle}</div>}
                       </div>
                     </div>
@@ -343,50 +363,51 @@ const VideoRecorder = () => {
                     <div className="col-md-6">
                       <div className="form-floating mb-3 mb-md-0">
                         <input className={`form-control ${formErrors.company ? 'is-invalid' : ''}`} id="company" name="company" type="text" placeholder="Enter your current company" value={formData.company} onChange={handleInputChange} required />
-                        <label htmlFor="company">Current Company Name</label>
+                        <label htmlFor="company">Current Company Name<span className="text-danger ms-0">*</span></label>
                         {formErrors.company && <div className="invalid-feedback">{formErrors.company}</div>}
                       </div>
                     </div>
                     <div className="col-md-6">
                       <div className="form-floating">
                         <input className={`form-control ${formErrors.location ? 'is-invalid' : ''}`} id="location" name="location" type="text" placeholder="Enter your location" value={formData.location} onChange={handleInputChange} required />
-                        <label htmlFor="location">Location</label>
+                        <label htmlFor="location">Location<span className="text-danger ms-0">*</span></label>
                         {formErrors.location && <div className="invalid-feedback">{formErrors.location}</div>}
                       </div>
                     </div>
                   </div>
                   <div className="form-floating mb-3">
                     <input
-                      className={`form-control ${formErrors.domainUrl ? 'is-invalid' : ''}`}
+                      // className={`form-control ${formErrors.domainUrl ? 'is-invalid' : ''}`}
+                      className="form-control"
                       id="domainUrl"
                       name="domainUrl"
                       placeholder="Enter your Domain URL"
                       type="url"
-                      value={formData.domainUrl}
+                      // value={formData.domainUrl}
                       onChange={handleInputChange}
-                      required
+                     // required
                     />
                     <label htmlFor="domainUrl">Domain URL (e.g., https://example.com)</label>
-                    {formErrors.domainUrl && <div className="invalid-feedback">{formErrors.domainUrl}</div>}
+                    {/* {formErrors.domainUrl && <div className="invalid-feedback">{formErrors.domainUrl}</div>} */}
                   </div>
                   <div className="form-floating mb-3">
                     <input className={`form-control ${formErrors.linkedinUrl ? 'is-invalid' : ''}`} id="linkedinUrl" name="linkedinUrl" type="url" placeholder="Enter your LinkedIn profile URL" value={formData.linkedinUrl} onChange={handleInputChange} required />
-                    <label htmlFor="linkedinUrl">LinkedIn Profile URL (e.g., https://www.linkedin.com/in/your-profile)</label>
+                    <label htmlFor="linkedinUrl">LinkedIn Profile URL<span className="text-danger ms-0">*</span> (e.g., https://www.linkedin.com/in/your-profile)</label>
                     {formErrors.linkedinUrl && <div className="invalid-feedback">{formErrors.linkedinUrl}</div>}
                   </div>
                   <div className="form-floating mb-3">
                     <input className={`form-control ${formErrors.hearAbout ? 'is-invalid' : ''}`} id="hearAbout" name="hearAbout" type="text" placeholder="How did you hear about this position?" value={formData.hearAbout} onChange={handleInputChange} required />
-                    <label htmlFor="hearAbout">How did you hear about this position?</label>
+                    <label htmlFor="hearAbout">How did you hear about this position?<span className="text-danger ms-0">*</span></label>
                     {formErrors.hearAbout && <div className="invalid-feedback">{formErrors.hearAbout}</div>}
                   </div>
                   <div className="form-floating mb-3">
                     <textarea className={`form-control ${formErrors.interest ? 'is-invalid' : ''}`} id="interest" name="interest" placeholder="Why are you interested in this role?" style={{ height: '100px' }} value={formData.interest} onChange={handleInputChange} required></textarea>
-                    <label htmlFor="interest">Why are you interested in this role?</label>
+                    <label htmlFor="interest">Why are you interested in this role?<span className="text-danger ms-0">*</span></label>
                     {formErrors.interest && <div className="invalid-feedback">{formErrors.interest}</div>}
                   </div>
                   <div className="form-floating mb-3">
                     <textarea className={`form-control ${formErrors.skills ? 'is-invalid' : ''}`} id="skills" name="skills" placeholder="What are your key skills and qualifications?" style={{ height: '100px' }} value={formData.skills} onChange={handleInputChange} required></textarea>
-                    <label htmlFor="skills">What are your key skills and qualifications?</label>
+                    <label htmlFor="skills">What are your key skills and qualifications?<span className="text-danger ms-0">*</span></label>
                     {formErrors.skills && <div className="invalid-feedback">{formErrors.skills}</div>}
                   </div>
                   <form class="form-container">
@@ -403,7 +424,7 @@ const VideoRecorder = () => {
                           required
                         />
                         <label htmlFor="challenge">
-                          Describe a challenging project you have worked on..
+                          Describe a challenging project you have worked on.<span className="text-danger ms-0">*</span>
                         </label>
                         {formErrors.challenge && <div className="invalid-feedback">{formErrors.challenge}</div>}
                       </div>
@@ -413,18 +434,18 @@ const VideoRecorder = () => {
                     <div className="col-md-6">
                       <div className="form-floating mb-3 mb-md-0">
                         <input className={`form-control ${formErrors.salary ? 'is-invalid' : ''}`} id="salary" name="salary" type="text" placeholder="Enter your salary expectations" value={formData.salary} onChange={handleInputChange} required />
-                        <label htmlFor="salary">Salary Expectations</label>
+                        <label htmlFor="salary">Salary Expectations<span className="text-danger ms-0">*</span></label>
                         {formErrors.salary && <div className="invalid-feedback">{formErrors.salary}</div>}
                       </div>
                     </div>
                     <div className="col-md-6">
                       <div className="form-floating">
                         <select className={`form-select ${formErrors.relocate ? 'is-invalid' : ''}`} id="relocate" name="relocate" value={formData.relocate} onChange={handleInputChange} required>
-                          <option value="">Select an option</option>
+                          <option value="">Select an option<span className="text-danger ms-0">*</span></option>
                           <option value="yes">Yes</option>
                           <option value="no">No</option>
                         </select>
-                        <label htmlFor="relocate">Are you willing to relocate?</label>
+                        <label htmlFor="relocate">Are you willing to relocate?<span className="text-danger ms-0">*</span></label>
                         {formErrors.relocate && <div className="invalid-feedback">{formErrors.relocate}</div>}
                       </div>
                     </div>
@@ -500,6 +521,21 @@ const VideoRecorder = () => {
                           </div>
                         )}
                       </div>
+                    </div>
+                  </div>
+                  <div id="smlength">
+                    <div className="form-floating mb-3">
+                      <input
+                       ref={resumeFileInputRef}
+                        className={`form-control ${formErrors.resume ? 'is-invalid' : ''}`}
+                        type="file"
+                        onChange={handleFileChange}
+                        style={{ marginTop: '20px' }}
+                        accept=".pdf,.doc,.docx"
+                        id="fileInput"
+                      />
+                      <label htmlFor="fileInput" id="fileInputLabel">Upload Resume<span className="text-danger ms-0">*</span></label>
+                      {formErrors.resume && <div className="invalid-feedback">{formErrors.resume}</div>}
                     </div>
                   </div>
                   <div className="d-flex justify-content-between align-items-center mt-4">

@@ -147,3 +147,30 @@ textarea, input {
   height: 45px; 
   font-size: 14px;  
 }
+
+#smlength{
+  width: 38%;
+
+}
+
+/* Handle medium screens */
+@media (max-width: 992px) {
+  #smlength {
+    width: 50%;  
+  }
+}
+
+/* Handle small screens */
+@media (max-width: 768px) {
+  #smlength {
+    width: 70%;  
+  }
+}
+
+/* Handle extra small screens */
+@media (max-width: 576px) {
+  #smlength {
+    width: 100%;  
+  }
+}
+

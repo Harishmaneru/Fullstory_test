@@ -193,7 +193,7 @@ const VideoRecorder = () => {
         if (resumeFile) {
           submitFormData.append('resume', resumeFile, resumeFile.name);
         }
-        fetch('https://videoresponse.onepgr.com:3000/upload', {
+        fetch('https://videoresponse.onepgr.com:3000/server', {
           method: 'POST',
           body: submitFormData,
         })

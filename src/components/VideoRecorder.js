@@ -193,7 +193,7 @@ const VideoRecorder = () => {
         if (resumeFile) {
           submitFormData.append('resume', resumeFile, resumeFile.name);
         }
-        fetch('https://localhost:3000/server', {
+        fetch('http://localhost:3000/server', {
           method: 'POST',
           body: submitFormData,
         })
